@@ -1,5 +1,5 @@
 #!name=京东Cookie捕获
-#!desc=打开京东App自动抓取pt_key+pt_pin，捕获后推送通知
+#!desc=打开京东App自动抓取pt_key+pt_pin，无需额外脚本
 #!homepage=https://github.com/6dylan6/jdpro
 #!icon=https://img12.360buyimg.com/img/jfs/t1/344493/13/26448/1881/6913e9baF4c5ab748/52238dc72ffe6b04.png
 #!author=Hermes Agent
@@ -7,13 +7,10 @@
 #!date=2026-06-20
 
 [Script]
-http-request https:\/\/api\.m\.jd\.com\/client\.action script-path=jd_cookie.js, tag=京东Cookie-API, enabled=true, content="#!name=jd_cookie\nconst url=$request.url;const h=$request.headers['Cookie']||'';const m=h.match(/pt_key=([^;]+)/);const p=h.match(/pt_pin=([^;]+)/);if(m&&p){const r=m[0]+';'+p[0]+';';const pin=decodeURIComponent((p[0].match(/pt_pin=([^;]+)/)||['',''])[1]);let s=$persistentStore.read('JD_CK')||'';if(!s.includes(p[0])){s=s?s+'\\n'+r:r;$persistentStore.write(s,'JD_CK');$notification.post('✅京东Cookie','账号: '+pin,r.substring(0,25)+'...');console.log('[JD] '+r);}$done({});}else{$done({});}"
-
-http-request https:\/\/me-api\.jd\.com\/ script-path=jd_cookie.js, tag=京东Cookie-Me, enabled=true, content="#!name=jd_cookie\nconst url=$request.url;const h=$request.headers['Cookie']||'';const m=h.match(/pt_key=([^;]+)/);const p=h.match(/pt_pin=([^;]+)/);if(m&&p){const r=m[0]+';'+p[0]+';';const pin=decodeURIComponent((p[0].match(/pt_pin=([^;]+)/)||['',''])[1]);let s=$persistentStore.read('JD_CK')||'';if(!s.includes(p[0])){s=s?s+'\\n'+r:r;$persistentStore.write(s,'JD_CK');$notification.post('✅京东Cookie','账号: '+pin,r.substring(0,25)+'...');console.log('[JD] '+r);}$done({});}else{$done({});}"
-
-http-request https:\/\/home\.m\.jd\.com\/ script-path=jd_cookie.js, tag=京东Cookie-Home, enabled=true, content="#!name=jd_cookie\nconst url=$request.url;const h=$request.headers['Cookie']||'';const m=h.match(/pt_key=([^;]+)/);const p=h.match(/pt_pin=([^;]+)/);if(m&&p){const r=m[0]+';'+p[0]+';';const pin=decodeURIComponent((p[0].match(/pt_pin=([^;]+)/)||['',''])[1]);let s=$persistentStore.read('JD_CK')||'';if(!s.includes(p[0])){s=s?s+'\\n'+r:r;$persistentStore.write(s,'JD_CK');$notification.post('✅京东Cookie','账号: '+pin,r.substring(0,25)+'...');console.log('[JD] '+r);}$done({});}else{$done({});}"
-
-http-request https:\/\/ms\.jr\.jd\.com\/ script-path=jd_cookie.js, tag=京东Cookie-JR, enabled=true, content="#!name=jd_cookie\nconst url=$request.url;const h=$request.headers['Cookie']||'';const m=h.match(/pt_key=([^;]+)/);const p=h.match(/pt_pin=([^;]+)/);if(m&&p){const r=m[0]+';'+p[0]+';';const pin=decodeURIComponent((p[0].match(/pt_pin=([^;]+)/)||['',''])[1]);let s=$persistentStore.read('JD_CK')||'';if(!s.includes(p[0])){s=s?s+'\\n'+r:r;$persistentStore.write(s,'JD_CK');$notification.post('✅京东Cookie','账号: '+pin,r.substring(0,25)+'...');console.log('[JD] '+r);}$done({});}else{$done({});}"
+http-request ^https:\/\/api\.m\.jd\.com\/client\.action script-path=jd_cookie.js, tag=京东Cookie, enabled=true, content="var h=$request.headers['Cookie']||$request.headers['cookie']||'',k=h.match(/pt_key=([^;]+)/),p=h.match(/pt_pin=([^;]+)/);if(k&&p){var f=k[0]+';'+p[0]+';',n=decodeURIComponent(p[1]),s=$persistentStore.read('JD_CK')||'';if(!s.includes(p[0])){s=s?s+'&'+f:f;$persistentStore.write(s,'JD_CK');$notification.post('✅京东Cookie','账号: '+n,'已捕获!');console.log('[JD] '+f);}}else{console.log('[JD] 未找到Cookie');}$done({});"
+http-request ^https:\/\/me-api\.jd\.com\/ script-path=jd_cookie.js, tag=京东Cookie, enabled=true, content="var h=$request.headers['Cookie']||$request.headers['cookie']||'',k=h.match(/pt_key=([^;]+)/),p=h.match(/pt_pin=([^;]+)/);if(k&&p){var f=k[0]+';'+p[0]+';',n=decodeURIComponent(p[1]),s=$persistentStore.read('JD_CK')||'';if(!s.includes(p[0])){s=s?s+'&'+f:f;$persistentStore.write(s,'JD_CK');$notification.post('✅京东Cookie','账号: '+n,'已捕获!');console.log('[JD] '+f);}}else{console.log('[JD] 未找到Cookie');}$done({});"
+http-request ^https:\/\/home\.m\.jd\.com\/ script-path=jd_cookie.js, tag=京东Cookie, enabled=true, content="var h=$request.headers['Cookie']||$request.headers['cookie']||'',k=h.match(/pt_key=([^;]+)/),p=h.match(/pt_pin=([^;]+)/);if(k&&p){var f=k[0]+';'+p[0]+';',n=decodeURIComponent(p[1]),s=$persistentStore.read('JD_CK')||'';if(!s.includes(p[0])){s=s?s+'&'+f:f;$persistentStore.write(s,'JD_CK');$notification.post('✅京东Cookie','账号: '+n,'已捕获!');console.log('[JD] '+f);}}else{console.log('[JD] 未找到Cookie');}$done({});"
+http-request ^https:\/\/ms\.jr\.jd\.com\/ script-path=jd_cookie.js, tag=京东Cookie, enabled=true, content="var h=$request.headers['Cookie']||$request.headers['cookie']||'',k=h.match(/pt_key=([^;]+)/),p=h.match(/pt_pin=([^;]+)/);if(k&&p){var f=k[0]+';'+p[0]+';',n=decodeURIComponent(p[1]),s=$persistentStore.read('JD_CK')||'';if(!s.includes(p[0])){s=s?s+'&'+f:f;$persistentStore.write(s,'JD_CK');$notification.post('✅京东Cookie','账号: '+n,'已捕获!');console.log('[JD] '+f);}}else{console.log('[JD] 未找到Cookie');}$done({});"
 
 [MITM]
 hostname = %APPEND% api.m.jd.com, me-api.jd.com, home.m.jd.com, ms.jr.jd.com
