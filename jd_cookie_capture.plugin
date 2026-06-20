@@ -1,76 +1,52 @@
-#!name=京东Cookie捕获
-#!desc=自动抓取pt_key+pt_pin（Loon最新版单文件版）
-#!homepage=https://github.com/6dylan6/jdpro
-#!icon=https://img12.360buyimg.com/img/jfs/t1/344493/13/26448/1881/6913e9baF4c5ab748/52238dc72ffe6b04.png
-#!author=ChatGPT
-#!loon_version=>=2.1.0
-#!date=2026-06-20
+#!name=JD Cookie 捕获（增强命中版）
+#!desc=优化MITM命中率版本
 
 [MITM]
-hostname = %APPEND% api.m.jd.com, me-api.jd.com, home.m.jd.com, ms.jr.jd.com
+hostname = %APPEND% *.jd.com, *.360buyimg.com
 
 [Script]
-http-request ^https:\/\/api\.m\.jd\.com\/ script-path=jd_cookie.js, tag=JD Cookie Capture, timeout=10
-http-request ^https:\/\/me-api\.jd\.com\/ script-path=jd_cookie.js, tag=JD Cookie Capture, timeout=10
-http-request ^https:\/\/home\.m\.jd\.com\/ script-path=jd_cookie.js, tag=JD Cookie Capture, timeout=10
-http-request ^https:\/\/ms\.jr\.jd\.com\/ script-path=jd_cookie.js, tag=JD Cookie Capture, timeout=10
+http-request ^https:\/\/.*jd\.com.* script-path=jd_cookie.js, tag=JD Cookie Capture, timeout=10
 
 [Script Code]
 jd_cookie.js = `
-(function () {
+const h = $request.headers || {};
+const cookie = h.Cookie || h.cookie;
 
-  const h = $request.headers || {};
-  const cookie = h['Cookie'] || h['cookie'];
+if (!cookie) return $done({});
 
-  if (!cookie) return $done({});
+const key = cookie.match(/pt_key=([^;]+)/);
+const pin = cookie.match(/pt_pin=([^;]+)/);
 
-  const key = cookie.match(/pt_key=([^;]+)/);
-  const pin = cookie.match(/pt_pin=([^;]+)/);
+if (!key || !pin) return $done({});
 
-  if (!key || !pin) return $done({});
+const newCookie = \`pt_key=\${key[1]}; pt_pin=\${pin[1]};\`;
 
-  const ptKey = key[1];
-  const ptPin = pin[1];
+let list = [];
+try {
+  list = JSON.parse($persistentStore.read('JD_COOKIE_LIST') || '[]');
+} catch {}
 
-  const newCookie = \`pt_key=\${ptKey}; pt_pin=\${ptPin};\`;
+let updated = false;
 
-  let list = [];
-  try {
-    list = JSON.parse($persistentStore.read('JD_COOKIE_LIST') || '[]');
-  } catch (e) {
-    list = [];
-  }
+const idx = list.findIndex(x => x.includes(\`pt_pin=\${pin[1]};\`));
 
-  let found = false;
-  let changed = false;
+if (idx === -1) {
+  list.push(newCookie);
+  updated = true;
+} else if (list[idx] !== newCookie) {
+  list[idx] = newCookie;
+  updated = true;
+}
 
-  for (let i = 0; i < list.length; i++) {
-    if (list[i].includes(\`pt_pin=\${ptPin};\`)) {
-      found = true;
+if (updated) {
+  $persistentStore.write(JSON.stringify(list), 'JD_COOKIE_LIST');
 
-      if (list[i] !== newCookie) {
-        list[i] = newCookie;
-        changed = true;
-      }
-      break;
-    }
-  }
+  $notification.post(
+    'JD Cookie 捕获成功',
+    decodeURIComponent(pin[1]),
+    idx === -1 ? '新增账号' : '已更新'
+  );
+}
 
-  if (!found) {
-    list.push(newCookie);
-    changed = true;
-  }
-
-  if (changed) {
-    $persistentStore.write(JSON.stringify(list), 'JD_COOKIE_LIST');
-
-    $notification.post(
-      '京东Cookie更新',
-      decodeURIComponent(ptPin),
-      found ? '已刷新Cookie' : '新增账号'
-    );
-  }
-
-  $done({});
-})();
+$done({});
 `;
